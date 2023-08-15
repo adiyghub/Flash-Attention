@@ -53,10 +53,10 @@ for j in range(0, num_blocks_kv):
         # calculate exponential sums of rows in block_result
         new_exp_sum = torch.exp(current_max_row - new_max)*current_sum_row + torch.exp(max_values - new_max)*row_exp_sum
 
-        term_1 = torch.matmul(torch.diag(current_sum_row), (torch.exp(current_max_row - new_max).view(-1, 1)*block_output))
+        term_1 = current_sum_row.view(-1, 1)*(torch.exp(current_max_row - new_max).view(-1, 1)*block_output)
         term_2 = torch.exp(max_values - new_max).view(-1, 1)*torch.matmul(block_exp, block_value)
         # update output matrix
-        output_matrix[i*block_size_query:(i+1)*block_size_query, :] = torch.matmul(torch.diag(1/new_exp_sum), term_1 + term_2)
+        output_matrix[i*block_size_query:(i+1)*block_size_query, :] = (1/new_exp_sum).view(-1, 1)*(term_1 + term_2)
 
         max_row[i*block_size_query:(i+1)*block_size_query] = new_max
         total_exp_sum[i*block_size_query:(i+1)*block_size_query] = new_exp_sum
